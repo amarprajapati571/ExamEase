@@ -255,8 +255,7 @@ function sendJson(res, statusCode, payload) {
 }
 
 function createFallbackWellnessSupport(checkIn, recentHistory = []) {
-  const primaryTrigger = checkIn.triggers[0];
-  const triggerText = checkIn.triggers.join(", ");
+  const primaryTrigger = getPrimaryTrigger(checkIn);
   const highRisk = isHighRiskCheckIn(checkIn);
   const mediumRisk = !highRisk && (checkIn.stressLevel >= 4 || checkIn.moodScore <= 2);
   const riskLevel = highRisk ? "High" : mediumRisk ? "Medium" : "Low";
@@ -267,7 +266,7 @@ function createFallbackWellnessSupport(checkIn, recentHistory = []) {
   return {
     emotionalSummary: highRisk
       ? `This check-in sounds very heavy, especially around ${primaryTrigger.toLowerCase()}. You deserve immediate support from someone safe and trusted.`
-      : `You named what is affecting you today: ${triggerText.toLowerCase()}. That awareness can make the next step feel clearer.`,
+      : `You named what is affecting you today: ${primaryTrigger.toLowerCase()}. That awareness can make the next step feel clearer.`,
     detectedPattern:
       trend ||
       `Mood is at ${checkIn.moodScore}/5 and stress is at ${checkIn.stressLevel}/5, with ${primaryTrigger.toLowerCase()} as the strongest pressure point today.`,
@@ -434,6 +433,18 @@ function summarizeRecentTrend(recentHistory) {
 
 function isHighRiskCheckIn(checkIn) {
   return checkIn.stressLevel === 5 || checkIn.moodScore === 1 || hasHighDistressLanguage(checkIn.reflection);
+}
+
+function getPrimaryTrigger(checkIn) {
+  if (typeof checkIn.trigger === "string" && checkIn.trigger.trim()) {
+    return checkIn.trigger.trim();
+  }
+
+  if (Array.isArray(checkIn.triggers) && typeof checkIn.triggers[0] === "string") {
+    return checkIn.triggers[0].trim();
+  }
+
+  return "Other";
 }
 
 function hasHighDistressLanguage(reflection) {
