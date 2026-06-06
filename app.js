@@ -440,7 +440,7 @@ function MoodDashboard(checkIns) {
           </article>
           <article class="metric-card">
             <h3>Most common trigger</h3>
-            <span class="metric-value amber">${escapeHtml(commonTrigger || "None yet")}</span>
+            <span class="metric-value amber trigger-value">${escapeHtml(commonTrigger || "None yet")}</span>
             ${CommonTriggers(checkIns)}
           </article>
           <article class="metric-card insight-card">
@@ -459,7 +459,7 @@ function MiniBars(checkIns, key, type) {
     .slice(-7)
     .map((entry) => {
       const height = Math.max(10, entry[key] * 14);
-      return `<span class="mini-bar ${type === "stress" ? "stress" : ""}" style="height: ${height}px" title="${entry.date}: ${entry[key]} out of 5"></span>`;
+      return `<span class="mini-bar ${type === "stress" ? "stress" : ""}" style="height: ${height}px" title="${formatCheckInDate(entry.date)}: ${entry[key]} out of 5"></span>`;
     })
     .join("");
 
@@ -510,7 +510,7 @@ function ReflectionJournal(checkIns) {
           .map(
             (entry) => `
               <li>
-                <span class="reflection-meta">${escapeHtml(entry.date)} - ${escapeHtml(entry.examType)} - ${escapeHtml(entry.phase)} - ${escapeHtml(entry.trigger)}</span>
+                <span class="reflection-meta">${escapeHtml(formatCheckInDate(entry.date))} - ${escapeHtml(entry.examType)} - ${escapeHtml(entry.phase)} - ${escapeHtml(entry.trigger)}</span>
                 ${entry.reflection ? escapeHtml(entry.reflection) : "No reflection added."}
               </li>
             `,
@@ -928,6 +928,16 @@ function createCheckInId() {
   }
 
   return `checkin-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
+function formatCheckInDate(date) {
+  const parsed = new Date(date);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return String(date);
+  }
+
+  return parsed.toLocaleDateString(undefined, { month: "short", day: "numeric" });
 }
 
 function isHighRiskCheckIn(checkIn) {

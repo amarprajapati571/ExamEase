@@ -556,6 +556,21 @@ textarea {
   color: var(--coral);
 }
 
+.metric-value.amber {
+  color: var(--amber);
+}
+
+.trigger-value {
+  font-size: 1.2rem;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.insight-card p {
+  color: var(--teal-dark);
+  font-weight: 800;
+}
+
 .mini-bars {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
