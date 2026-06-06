@@ -134,6 +134,17 @@ textarea:focus-visible {
   line-height: 1.2;
 }
 
+.privacy-disclaimer {
+  margin: -6px 0 18px;
+  border: 1px solid rgba(20, 125, 117, 0.2);
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: #f2faf7;
+  color: var(--teal-dark);
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
 .checkin-form {
   display: grid;
   gap: 18px;
@@ -196,6 +207,7 @@ fieldset {
   font-weight: 700;
 }
 
+.has-error input[type="text"],
 .has-error select,
 .has-error textarea {
   border-color: rgba(185, 51, 69, 0.72);
@@ -222,6 +234,7 @@ input[type="range"] {
 }
 
 select,
+input[type="text"],
 textarea {
   width: 100%;
   border: 1px solid var(--line);
@@ -230,6 +243,7 @@ textarea {
   color: var(--ink);
 }
 
+input[type="text"],
 select {
   min-height: 44px;
   padding: 0 12px;
@@ -313,6 +327,67 @@ textarea {
   grid-column: 1 / -1;
 }
 
+.journal-prompt-panel {
+  display: grid;
+  gap: 12px;
+  grid-column: 1 / -1;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 16px;
+  background: #fbfdfc;
+}
+
+.journal-prompt-header {
+  display: grid;
+  gap: 4px;
+}
+
+.journal-prompt-header h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.journal-prompt-header p,
+.ai-prompt p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.ai-prompt {
+  display: grid;
+  gap: 4px;
+  border-left: 4px solid var(--teal);
+  padding: 10px 12px;
+  background: #fff;
+}
+
+.ai-prompt span,
+.journal-next-prompt span {
+  color: var(--teal-dark);
+  font-size: 0.78rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.prompt-chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.prompt-chip-list li {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 7px 10px;
+  background: var(--surface-muted);
+  color: var(--teal-dark);
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
 .checkbox-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -392,6 +467,11 @@ textarea {
   gap: 14px;
 }
 
+.result-panel:focus {
+  outline: 3px solid rgba(20, 125, 117, 0.32);
+  outline-offset: 4px;
+}
+
 .result-card,
 .metric-card,
 .reflection-card {
@@ -458,6 +538,52 @@ textarea {
   color: var(--muted);
 }
 
+.wellness-plan-card {
+  background: #fbfdfc;
+}
+
+.wellness-plan-header {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.wellness-plan-header h3,
+.wellness-plan-header p {
+  margin: 0;
+}
+
+.wellness-plan-header p {
+  color: var(--muted);
+}
+
+.wellness-plan-list {
+  display: grid;
+  gap: 10px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.wellness-plan-list li {
+  display: grid;
+  grid-template-columns: 92px 1fr;
+  gap: 10px;
+  align-items: start;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px;
+  background: #fff;
+}
+
+.wellness-plan-list strong {
+  color: var(--teal-dark);
+}
+
+.wellness-plan-list span {
+  color: var(--muted);
+}
+
 .risk-card {
   border-color: rgba(20, 125, 117, 0.24);
   background: #f8fcfa;
@@ -485,6 +611,28 @@ textarea {
 
 .safety-notice h3 {
   color: var(--danger);
+}
+
+.safety-high {
+  border-width: 2px;
+}
+
+.grounding-card {
+  border-color: rgba(70, 88, 168, 0.26);
+  background: rgba(70, 88, 168, 0.06);
+}
+
+.medium-support-card {
+  border-color: rgba(180, 119, 24, 0.3);
+  background: #fff8ed;
+}
+
+.support-action-list {
+  display: grid;
+  gap: 8px;
+  padding-left: 20px;
+  margin: 0;
+  color: var(--muted);
 }
 
 .loading-state,
@@ -621,8 +769,94 @@ textarea {
   background: var(--amber);
 }
 
+.trigger-insights-card {
+  grid-column: 1 / -1;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 18px;
+  background: #fff;
+}
+
+.trigger-insights-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.trigger-insights-header h3 {
+  margin: 0 0 4px;
+  font-size: 1.05rem;
+}
+
+.trigger-insights-header p {
+  max-width: 720px;
+  margin: 0;
+  color: var(--muted);
+}
+
+.trigger-insight-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.trigger-insight-item {
+  display: grid;
+  gap: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px;
+  background: #fbfdfc;
+}
+
+.trigger-insight-item p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.trigger-insight-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.trigger-insight-top strong {
+  color: var(--ink);
+}
+
+.trigger-insight-top span {
+  flex: 0 0 auto;
+  border-radius: 999px;
+  padding: 4px 9px;
+  background: var(--surface-muted);
+  color: var(--teal-dark);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.coping-suggestion {
+  display: grid;
+  gap: 4px;
+  border-left: 4px solid var(--teal);
+  padding-left: 10px;
+}
+
+.coping-suggestion span {
+  color: var(--teal-dark);
+  font-size: 0.78rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
 .reflection-card {
-  grid-column: span 2;
+  display: grid;
+  grid-column: 1 / -1;
+  gap: 14px;
 }
 
 .reflection-list {
@@ -632,6 +866,59 @@ textarea {
 
 .reflection-list li {
   color: var(--muted);
+}
+
+.journal-heading h3,
+.journal-heading p,
+.journal-entry p,
+.journal-next-prompt p {
+  margin: 0;
+}
+
+.journal-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.journal-heading h3 {
+  font-size: 1.05rem;
+}
+
+.journal-heading p {
+  color: var(--muted);
+}
+
+.privacy-note {
+  border: 1px solid rgba(180, 119, 24, 0.24);
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: #fff8ed;
+  color: #725018;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.journal-next-prompt {
+  display: grid;
+  gap: 4px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px;
+  background: #fbfdfc;
+}
+
+.journal-entry {
+  display: grid;
+  gap: 6px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px;
+  background: #fff;
+}
+
+.positive-moment {
+  color: var(--teal-dark);
 }
 
 .reflection-meta {
@@ -705,6 +992,15 @@ textarea {
 
   .reflection-card {
     grid-column: auto;
+  }
+
+  .trigger-insight-list {
+    grid-template-columns: 1fr;
+  }
+
+  .wellness-plan-list li {
+    grid-template-columns: 1fr;
+    gap: 4px;
   }
 
   .submit-row {

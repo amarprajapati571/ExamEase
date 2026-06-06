@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "build": "node scripts/verify-static-site.js",
-    "test": "node scripts/test-tracking-utils.js"
+    "test": "node scripts/test-tracking-utils.js && node scripts/test-app-logic.js && node scripts/test-backend-core.js"
   },
   "keywords": [
     "student-wellness",
