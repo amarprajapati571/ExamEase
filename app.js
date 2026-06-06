@@ -550,7 +550,7 @@ function bindFormEvents() {
     }
 
     const checkIn = normalizeCheckIn(state.form);
-    const recentHistory = state.entries.slice(-7);
+    const recentHistory = state.checkIns.slice(-7);
 
     state.loading = true;
     App();
@@ -559,7 +559,8 @@ function bindFormEvents() {
 
     state.loading = false;
     state.latestResult = support;
-    state.entries = [...state.entries.filter((entry) => entry.date !== "Today"), checkIn];
+    state.checkIns = [...state.checkIns, checkIn];
+    saveStoredCheckIns(state.checkIns);
     App();
   });
 }
@@ -617,14 +618,15 @@ function focusFirstError(errors) {
 
 function normalizeCheckIn(form) {
   return {
-    date: "Today",
+    id: createCheckInId(),
+    date: new Date().toISOString(),
     examType: form.examType,
-    currentPhase: form.currentPhase,
+    phase: form.currentPhase,
     moodScore: Number(form.moodScore),
     stressLevel: Number(form.stressLevel),
     energyLevel: Number(form.energyLevel),
     sleepQuality: form.sleepQuality,
-    triggers: form.triggers,
+    trigger: form.triggers[0],
     reflection: form.reflection.trim(),
     supportPreference: form.supportPreference,
   };
@@ -656,8 +658,7 @@ async function generateWellnessSupport(checkInData, recentHistory) {
 }
 
 function createFallbackWellnessSupport(checkIn, recentHistory = []) {
-  const primaryTrigger = checkIn.triggers[0];
-  const triggerText = checkIn.triggers.join(", ");
+  const primaryTrigger = getPrimaryTrigger(checkIn);
   const highRisk = isHighRiskCheckIn(checkIn);
   const mediumRisk = !highRisk && (checkIn.stressLevel >= 4 || checkIn.moodScore <= 2);
   const riskLevel = highRisk ? "High" : mediumRisk ? "Medium" : "Low";
@@ -668,7 +669,7 @@ function createFallbackWellnessSupport(checkIn, recentHistory = []) {
   return {
     emotionalSummary: highRisk
       ? `This check-in sounds very heavy, especially around ${primaryTrigger.toLowerCase()}. You deserve immediate support from someone safe and trusted.`
-      : `You named what is affecting you today: ${triggerText.toLowerCase()}. That awareness can make the next step feel clearer.`,
+      : `You named what is affecting you today: ${primaryTrigger.toLowerCase()}. That awareness can make the next step feel clearer.`,
     detectedPattern:
       trend ||
       `Mood is at ${checkIn.moodScore}/5 and stress is at ${checkIn.stressLevel}/5, with ${primaryTrigger.toLowerCase()} as the strongest pressure point today.`,
@@ -827,10 +828,106 @@ function summarizeRecentTrend(recentHistory) {
     return "";
   }
 
-  const averageMood = average(recentHistory.map((entry) => entry.moodScore));
-  const averageStress = average(recentHistory.map((entry) => entry.stressLevel));
+  const averageMood = calculateAverageMood(recentHistory);
+  const averageStress = calculateAverageStress(recentHistory);
 
   return `Recent check-ins show average mood around ${averageMood}/5 and stress around ${averageStress}/5, so today's support should stay practical and gentle.`;
+}
+
+function getSimpleInsight(checkIns, trends) {
+  const recent = checkIns.slice(-5);
+
+  if (trends.stressTrend === "Stress is increasing") {
+    return "Stress is increasing";
+  }
+
+  if (trends.moodTrend === "Mood is improving") {
+    return "Mood is improving";
+  }
+
+  if (recent.length >= 2) {
+    const lowSleepWithLowEnergy = recent.filter(
+      (entry) => (entry.sleepQuality === "Poor" || entry.sleepQuality === "Okay") && entry.energyLevel <= 2,
+    );
+
+    if (lowSleepWithLowEnergy.length >= 2) {
+      return "Sleep may be affecting your energy";
+    }
+  }
+
+  if (trends.commonTrigger && /mock/i.test(trends.commonTrigger)) {
+    return "Mock test pressure appears often";
+  }
+
+  return trends.commonTrigger
+    ? `${trends.commonTrigger} appears most often in recent check-ins`
+    : "Complete a check-in to see a pattern";
+}
+
+function loadStoredCheckIns() {
+  try {
+    const stored = window.localStorage.getItem(storageKey);
+    const parsed = stored ? JSON.parse(stored) : [];
+
+    return Array.isArray(parsed) ? parsed.map(normalizeStoredCheckIn).filter(Boolean) : [];
+  } catch (error) {
+    return [];
+  }
+}
+
+function saveStoredCheckIns(checkIns) {
+  try {
+    window.localStorage.setItem(storageKey, JSON.stringify(checkIns));
+  } catch (error) {
+    // Session-only state still works if browser storage is unavailable.
+  }
+}
+
+function normalizeStoredCheckIn(checkIn) {
+  if (!checkIn || typeof checkIn !== "object") {
+    return null;
+  }
+
+  const trigger = getPrimaryTrigger(checkIn);
+  const phase = checkIn.phase || checkIn.currentPhase;
+
+  if (!trigger || !phase) {
+    return null;
+  }
+
+  return {
+    id: String(checkIn.id || createCheckInId()),
+    date: String(checkIn.date || new Date().toISOString()),
+    examType: String(checkIn.examType || "Other"),
+    phase: String(phase),
+    moodScore: Number(checkIn.moodScore),
+    stressLevel: Number(checkIn.stressLevel),
+    energyLevel: Number(checkIn.energyLevel || 3),
+    sleepQuality: String(checkIn.sleepQuality || "Okay"),
+    trigger,
+    reflection: String(checkIn.reflection || ""),
+    supportPreference: String(checkIn.supportPreference || "Calm me down"),
+  };
+}
+
+function getPrimaryTrigger(checkIn) {
+  if (typeof checkIn.trigger === "string" && checkIn.trigger.trim()) {
+    return checkIn.trigger.trim();
+  }
+
+  if (Array.isArray(checkIn.triggers) && typeof checkIn.triggers[0] === "string") {
+    return checkIn.triggers[0].trim();
+  }
+
+  return "Other";
+}
+
+function createCheckInId() {
+  if (window.crypto && typeof window.crypto.randomUUID === "function") {
+    return window.crypto.randomUUID();
+  }
+
+  return `checkin-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
 function isHighRiskCheckIn(checkIn) {
@@ -859,10 +956,6 @@ function escapeHtml(value) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
-}
-
-function average(values) {
-  return Math.round(values.reduce((sum, value) => sum + value, 0) / values.length);
 }
 
 App();
