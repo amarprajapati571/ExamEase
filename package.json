@@ -1,0 +1,17 @@
+{
+  "name": "examease",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A responsive mental wellness tracker for students during exam preparation and result seasons.",
+  "scripts": {
+    "start": "node server.js",
+    "build": "node scripts/verify-static-site.js",
+    "test": "node scripts/test-tracking-utils.js"
+  },
+  "keywords": [
+    "student-wellness",
+    "exam-preparation",
+    "static-site"
+  ],
+  "license": "UNLICENSED"
+}
