@@ -132,9 +132,12 @@ function testValidation() {
   );
   assert.strictEqual(
     app.validation.validateForm(createValidForm({ triggers: [] })).triggers,
-    "Please select at least one stress trigger.",
+    "Please select one stress trigger.",
   );
-  assert.strictEqual(app.validation.validateForm(createValidForm({ triggers: ["Mock test scores", "Burnout"] })).triggers, undefined);
+  assert.strictEqual(
+    app.validation.validateForm(createValidForm({ triggers: ["Mock test scores", "Burnout"] })).triggers,
+    "Please select only one main stress trigger.",
+  );
 }
 
 async function testAiResponseValidationAndFallback() {
@@ -209,7 +212,7 @@ function testComponentBehavior() {
     latestPrompt: "What helped today?",
   });
   assert.match(formHtml, /<button class="primary-button" type="submit" disabled>Generate Support<\/button>/);
-  assert.match(formHtml, /type="checkbox" name="triggers"/);
+  assert.match(formHtml, /type="radio" name="triggers"/);
 
   const highRiskHtml = app.components.WellnessResult.renderWellnessResult({
     result: createValidSupport({

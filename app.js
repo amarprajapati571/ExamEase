@@ -1,5 +1,12 @@
 (function initExamEaseApp(globalScope) {
-  const namespace = globalScope.ExamEase;
+  const namespace = globalScope.ExamEase || {};
+  const missingDependencies = getMissingDependencies(namespace);
+
+  if (missingDependencies.length) {
+    renderBootError(missingDependencies);
+    return;
+  }
+
   const storageKey = "examease.checkIns.v1";
   const supportCacheKey = "examease.supportCache.v1";
   const supportCache = namespace.cache.loadSupportCache(globalScope.sessionStorage, supportCacheKey);
@@ -25,7 +32,7 @@
     document.querySelector("#app").innerHTML = `
       <div class="app-shell">
         ${namespace.components.Header.renderHeader()}
-        <main>
+        <main id="main-content" tabindex="-1">
           <div class="main-grid">
             ${namespace.components.CheckInForm.renderCheckInForm({
               form: state.form,
@@ -174,6 +181,43 @@
     } catch (error) {
       // Session-only state still works if browser storage is unavailable.
     }
+  }
+
+  function getMissingDependencies(root) {
+    return [
+      ["cache.loadSupportCache", root.cache && root.cache.loadSupportCache],
+      ["html.escapeHtml", root.html && root.html.escapeHtml],
+      ["moodAnalytics.createAnalyticsMemo", root.moodAnalytics && root.moodAnalytics.createAnalyticsMemo],
+      ["mockWellnessResponse.createFallbackWellnessSupport", root.mockWellnessResponse && root.mockWellnessResponse.createFallbackWellnessSupport],
+      ["validation.createInitialForm", root.validation && root.validation.createInitialForm],
+      ["riskAssessment.assessRisk", root.riskAssessment && root.riskAssessment.assessRisk],
+      ["aiService.generateWellnessSupport", root.aiService && root.aiService.generateWellnessSupport],
+      ["components.Header.renderHeader", root.components && root.components.Header && root.components.Header.renderHeader],
+      ["components.CheckInForm.renderCheckInForm", root.components && root.components.CheckInForm && root.components.CheckInForm.renderCheckInForm],
+      ["components.WellnessResult.renderWellnessResult", root.components && root.components.WellnessResult && root.components.WellnessResult.renderWellnessResult],
+      ["components.MoodDashboard.renderMoodDashboard", root.components && root.components.MoodDashboard && root.components.MoodDashboard.renderMoodDashboard],
+    ]
+      .filter(([, dependency]) => typeof dependency !== "function")
+      .map(([name]) => name);
+  }
+
+  function renderBootError(missingDependencies) {
+    const appRoot = globalScope.document && globalScope.document.querySelector("#app");
+    const escape = namespace.html && namespace.html.escapeHtml ? namespace.html.escapeHtml : String;
+
+    if (!appRoot) {
+      return;
+    }
+
+    appRoot.innerHTML = `
+      <main id="main-content" class="app-shell boot-error" tabindex="-1">
+        <section class="panel result-panel">
+          <h1 class="section-heading">ExamEase could not start</h1>
+          <p>Some required app modules did not load. Please refresh the page or redeploy the latest build.</p>
+          <p class="field-error">${missingDependencies.map(escape).join(", ")}</p>
+        </section>
+      </main>
+    `;
   }
 
   namespace.app = {

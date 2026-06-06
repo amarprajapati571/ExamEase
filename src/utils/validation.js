@@ -27,7 +27,9 @@
     if (!options.sleepOptions.includes(form.sleepQuality)) errors.sleepQuality = "Please choose your sleep quality.";
 
     if (!form.triggers.length) {
-      errors.triggers = "Please select at least one stress trigger.";
+      errors.triggers = "Please select one stress trigger.";
+    } else if (form.triggers.length > 1) {
+      errors.triggers = "Please select only one main stress trigger.";
     } else if (!form.triggers.every((trigger) => options.stressTriggers.includes(trigger))) {
       errors.triggers = "Please choose a listed stress trigger.";
     }

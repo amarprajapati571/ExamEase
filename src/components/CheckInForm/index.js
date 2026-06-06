@@ -19,7 +19,7 @@
             ${renderRatingField("stressLevel", "Stress level", ["Low", "Manageable", "Moderate", "High", "Very high"], true, form, errors)}
             ${renderRatingField("energyLevel", "Energy level", ["Very low", "Low", "Okay", "Good", "High"], false, form, errors)}
             ${renderSelectField("sleepQuality", "Sleep quality", data.sleepOptions, "", true, form, errors)}
-            ${renderTriggerCheckboxes(form, errors)}
+            ${renderTriggerOptions(form, errors)}
             ${renderReflectionPrompts(latestPrompt)}
             ${renderReflectionField(form, errors)}
             ${renderPositiveMomentField(form, errors)}
@@ -83,19 +83,19 @@
     `;
   }
 
-  function renderTriggerCheckboxes(form, errors) {
+  function renderTriggerOptions(form, errors) {
     const error = errors.triggers;
     const describedBy = ["triggers-hint", error ? "triggers-error" : ""].filter(Boolean).join(" ");
     return `
       <fieldset class="field full-width trigger-field ${error ? "has-error" : ""}" ${error ? 'aria-invalid="true"' : ""} aria-describedby="${describedBy}">
         <legend>Main stress trigger <span aria-hidden="true">*</span></legend>
-        <p class="field-hint" id="triggers-hint">Select at least one trigger that feels relevant today.</p>
-        <div class="checkbox-grid">
+        <p class="field-hint" id="triggers-hint">Select the one trigger that feels most relevant today.</p>
+        <div class="trigger-options-grid">
           ${namespace.triggerSuggestions.stressTriggers
             .map(
               (trigger) => `
                 <label class="check-option">
-                  <input type="checkbox" name="triggers" value="${escapeHtml(trigger)}" ${form.triggers.includes(trigger) ? "checked" : ""} aria-label="Stress trigger: ${escapeHtml(trigger)}" />
+                  <input type="radio" name="triggers" value="${escapeHtml(trigger)}" ${form.triggers.includes(trigger) ? "checked" : ""} aria-label="Main stress trigger: ${escapeHtml(trigger)}" />
                   <span>${escapeHtml(trigger)}</span>
                 </label>
               `,

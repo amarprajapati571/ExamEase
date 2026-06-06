@@ -81,10 +81,27 @@ async function handleWellnessSupport(req, res) {
 function serveStatic(req, res) {
   setSecurityHeaders(res);
 
-  const requestPath = req.url === "/" ? "/index.html" : req.url.split("?")[0];
-  const filePath = path.normalize(path.join(PUBLIC_DIR, requestPath));
+  let requestPath;
 
-  if (!filePath.startsWith(PUBLIC_DIR)) {
+  try {
+    const rawPath = req.url === "/" ? "/index.html" : req.url.split("?")[0];
+    requestPath = decodeURIComponent(rawPath);
+  } catch (error) {
+    res.writeHead(400);
+    res.end("Bad request");
+    return;
+  }
+
+  if (!isAllowedStaticPath(requestPath)) {
+    res.writeHead(404);
+    res.end("Not found");
+    return;
+  }
+
+  const filePath = path.normalize(path.join(PUBLIC_DIR, requestPath));
+  const relativePath = path.relative(PUBLIC_DIR, filePath);
+
+  if (relativePath.startsWith("..") || path.isAbsolute(relativePath)) {
     res.writeHead(403);
     res.end("Forbidden");
     return;
@@ -111,4 +128,18 @@ function contentType(filePath) {
   };
 
   return types[path.extname(filePath)] || "text/plain";
+}
+
+function isAllowedStaticPath(requestPath) {
+  if (requestPath.includes("\0") || requestPath.split("/").some((part) => part.startsWith("."))) {
+    return false;
+  }
+
+  return (
+    requestPath === "/index.html" ||
+    requestPath === "/styles.css" ||
+    requestPath === "/app.js" ||
+    requestPath === "/tracking-utils.js" ||
+    requestPath.startsWith("/src/")
+  );
 }
